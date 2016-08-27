@@ -1,1 +1,2 @@
 0001-Add-unpacked-boost.patch
+0002-Fix-Boost-1.43.0-to-compile-with-gcc-4.9.patch

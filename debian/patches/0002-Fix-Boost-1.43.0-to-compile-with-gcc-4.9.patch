@@ -1,0 +1,129 @@
+From: Sten Heinze <shze@gmx.de>
+Date: Fri, 26 Aug 2016 23:51:23 -0400
+Subject: Fix Boost 1.43.0 to compile with gcc 4.9.
+
+---
+ .../boost_1_43_0/boost/config/stdlib/libstdcpp3.hpp      |  3 ++-
+ .../containers/container/detail/utilities.hpp            | 16 ++++++++--------
+ freicore/libraries/boost_1_43_0/boost/thread/xtime.hpp   |  4 ++--
+ .../boost_1_43_0/libs/thread/src/pthread/timeconv.inl    | 16 ++++++++--------
+ 4 files changed, 20 insertions(+), 19 deletions(-)
+
+diff --git a/freicore/libraries/boost_1_43_0/boost/config/stdlib/libstdcpp3.hpp b/freicore/libraries/boost_1_43_0/boost/config/stdlib/libstdcpp3.hpp
+index 6a57319..609e059 100644
+--- a/freicore/libraries/boost_1_43_0/boost/config/stdlib/libstdcpp3.hpp
++++ b/freicore/libraries/boost_1_43_0/boost/config/stdlib/libstdcpp3.hpp
+@@ -31,7 +31,8 @@
+ 
+ #ifdef __GLIBCXX__ // gcc 3.4 and greater:
+ #  if defined(_GLIBCXX_HAVE_GTHR_DEFAULT) \
+-        || defined(_GLIBCXX__PTHREADS)
++        || defined(_GLIBCXX__PTHREADS) \
++        || defined(_GLIBCXX_HAS_GTHREADS)
+       //
+       // If the std lib has thread support turned on, then turn it on in Boost
+       // as well.  We do this because some gcc-3.4 std lib headers define _REENTANT
+diff --git a/freicore/libraries/boost_1_43_0/boost/interprocess/containers/container/detail/utilities.hpp b/freicore/libraries/boost_1_43_0/boost/interprocess/containers/container/detail/utilities.hpp
+index d58daef..9b70bbd 100644
+--- a/freicore/libraries/boost_1_43_0/boost/interprocess/containers/container/detail/utilities.hpp
++++ b/freicore/libraries/boost_1_43_0/boost/interprocess/containers/container/detail/utilities.hpp
+@@ -24,6 +24,14 @@ namespace boost {
+ namespace container {
+ namespace containers_detail {
+ 
++template<class T>
++const T &max_value(const T &a, const T &b)
++{  return a > b ? a : b;   }
++
++template<class T>
++const T &min_value(const T &a, const T &b)
++{  return a < b ? a : b;   }
++
+ template <class SizeType>
+ SizeType
+    get_next_capacity(const SizeType max_size
+@@ -44,14 +52,6 @@ SizeType
+    return max_size;
+ }
+ 
+-template<class T>
+-const T &max_value(const T &a, const T &b)
+-{  return a > b ? a : b;   }
+-
+-template<class T>
+-const T &min_value(const T &a, const T &b)
+-{  return a < b ? a : b;   }
+-
+ template<class SmartPtr>
+ struct smart_ptr_type
+ {
+diff --git a/freicore/libraries/boost_1_43_0/boost/thread/xtime.hpp b/freicore/libraries/boost_1_43_0/boost/thread/xtime.hpp
+index 7cc6272..f908298 100644
+--- a/freicore/libraries/boost_1_43_0/boost/thread/xtime.hpp
++++ b/freicore/libraries/boost_1_43_0/boost/thread/xtime.hpp
+@@ -20,7 +20,7 @@ namespace boost {
+ 
+ enum xtime_clock_types
+ {
+-    TIME_UTC=1
++    TIME_UTC_=1
+ //    TIME_TAI,
+ //    TIME_MONOTONIC,
+ //    TIME_PROCESS,
+@@ -68,7 +68,7 @@ inline xtime get_xtime(boost::system_time const& abs_time)
+ 
+ inline int xtime_get(struct xtime* xtp, int clock_type)
+ {
+-    if (clock_type == TIME_UTC)
++    if (clock_type == TIME_UTC_)
+     {
+         *xtp=get_xtime(get_system_time());
+         return clock_type;
+diff --git a/freicore/libraries/boost_1_43_0/libs/thread/src/pthread/timeconv.inl b/freicore/libraries/boost_1_43_0/libs/thread/src/pthread/timeconv.inl
+index b75a135..7c07802 100644
+--- a/freicore/libraries/boost_1_43_0/libs/thread/src/pthread/timeconv.inl
++++ b/freicore/libraries/boost_1_43_0/libs/thread/src/pthread/timeconv.inl
+@@ -20,8 +20,8 @@ const int NANOSECONDS_PER_MICROSECOND = 1000;
+ inline void to_time(int milliseconds, boost::xtime& xt)
+ {
+     int res = 0;
+-    res = boost::xtime_get(&xt, boost::TIME_UTC);
+-    BOOST_ASSERT(res == boost::TIME_UTC);
++    res = boost::xtime_get(&xt, boost::TIME_UTC_);
++    BOOST_ASSERT(res == boost::TIME_UTC_);
+ 
+     xt.sec += (milliseconds / MILLISECONDS_PER_SECOND);
+     xt.nsec += ((milliseconds % MILLISECONDS_PER_SECOND) *
+@@ -57,8 +57,8 @@ inline void to_timespec_duration(const boost::xtime& xt, timespec& ts)
+ {
+     boost::xtime cur;
+     int res = 0;
+-    res = boost::xtime_get(&cur, boost::TIME_UTC);
+-    BOOST_ASSERT(res == boost::TIME_UTC);
++    res = boost::xtime_get(&cur, boost::TIME_UTC_);
++    BOOST_ASSERT(res == boost::TIME_UTC_);
+ 
+     if (boost::xtime_cmp(xt, cur) <= 0)
+     {
+@@ -88,8 +88,8 @@ inline void to_duration(boost::xtime xt, int& milliseconds)
+ {
+     boost::xtime cur;
+     int res = 0;
+-    res = boost::xtime_get(&cur, boost::TIME_UTC);
+-    BOOST_ASSERT(res == boost::TIME_UTC);
++    res = boost::xtime_get(&cur, boost::TIME_UTC_);
++    BOOST_ASSERT(res == boost::TIME_UTC_);
+ 
+     if (boost::xtime_cmp(xt, cur) <= 0)
+         milliseconds = 0;
+@@ -110,8 +110,8 @@ inline void to_microduration(boost::xtime xt, int& microseconds)
+ {
+     boost::xtime cur;
+     int res = 0;
+-    res = boost::xtime_get(&cur, boost::TIME_UTC);
+-    BOOST_ASSERT(res == boost::TIME_UTC);
++    res = boost::xtime_get(&cur, boost::TIME_UTC_);
++    BOOST_ASSERT(res == boost::TIME_UTC_);
+ 
+     if (boost::xtime_cmp(xt, cur) <= 0)
+         microseconds = 0;
