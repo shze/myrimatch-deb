@@ -915,7 +915,7 @@ namespace freicore
                     return;
                 }
 				//cout << s->id.toString() << endl;
-				push_back(s);
+                               BaseSpectraList< SpectrumType, SpectraListType >::push_back(s);
 			}
 			//cout << "File read in " << readTime.End() << " seconds." << endl;
 
@@ -949,7 +949,7 @@ namespace freicore
 					trimmedItrs.push_back( sItr );
 
 			for( size_t i=0; i < trimmedItrs.size(); ++i )
-				erase( trimmedItrs[i], deleteSpectra );
+                               BaseSpectraList< SpectrumType, SpectraListType >::erase( trimmedItrs[i], deleteSpectra );
 
 			return sizeBefore - BaseList::size();
 		}
