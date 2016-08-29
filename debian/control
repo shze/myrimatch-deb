@@ -1,0 +1,13 @@
+Source: myrimatch
+Maintainer: Sten Heinze <shze@gmx.de>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.8
+Build-Depends: debhelper (>= 9)
+
+Package: myrimatch
+Architecture: amd64
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: tandem mass spectral peptide identification
+ Myrimatch allows highly accurate identification of peptides in tandem mass 
+ spectra by multivariate hypergeometric analysis.
