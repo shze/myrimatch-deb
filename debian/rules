@@ -16,5 +16,5 @@ override_dh_auto_install:
 
 override_dh_auto_clean:
 	rm -rf debian/tmp
-	sh clean.sh
+	bash clean.sh
 
